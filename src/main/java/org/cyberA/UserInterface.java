@@ -21,13 +21,25 @@ public class UserInterface {
     private WindowBasedTextGUI textGUI;
 
     private GridLayout layoutRoot;
-    private GridLayout topPanelLayout;
+    private BorderLayout topPanelLayout;
     private GridLayout bottomPanelLayout;
 
-    private Label responseLabel;
+    private TextBox responseLabel;
     private TextBox userInput;
 
     private Runnable onSubmitFunc = null;
+
+    //https://patorjk.com/software/taag/
+    private final String DEFAULT_TEXT = """
+            
+                        ▄▄                         ▄▄                              \s
+                        ██                         ██                              \s
+            ▄████ ██ ██ ████▄ ▄█▀█▄ ████▄  ▀▀█▄ ▄████ ██ ██  ▀▀█▄ ████▄ ▄████ ▄█▀█▄\s
+            ██    ██▄██ ██ ██ ██▄█▀ ██ ▀▀ ▄█▀██ ██ ██ ██▄██ ▄█▀██ ██ ██ ██    ██▄█▀\s
+            ▀████  ▀██▀ ████▀ ▀█▄▄▄ ██    ▀█▄██ ▀████  ▀█▀  ▀█▄██ ██ ██ ▀████ ▀█▄▄▄\s
+                    ██                                                             \s
+                  ▀▀▀                                                              \s
+            """;
 
     public void onSubmit(Runnable listener) {
         onSubmitFunc = listener;
@@ -57,6 +69,7 @@ public class UserInterface {
 
     public boolean initalize() {
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
+
         Screen screen = null;
         try {
             screen = terminalFactory.createScreen();
@@ -96,7 +109,7 @@ public class UserInterface {
                 1
         ));
 
-        topPanelLayout = new GridLayout(1);
+        topPanelLayout = new BorderLayout();
         bottomPanelLayout = new GridLayout(1);
 
         Panel topPanel = new Panel(topPanelLayout);
@@ -130,15 +143,10 @@ public class UserInterface {
 
         bottomPanel.addComponent(userInputBorder);
 
-        responseLabel = new Label("model response");
-        responseLabel.setLayoutData(GridLayout.createLayoutData(
-                GridLayout.Alignment.FILL,
-                GridLayout.Alignment.FILL,
-                true,
-                true,
-                1,
-                1
-        ));
+        responseLabel = new TextBox(DEFAULT_TEXT, TextBox.Style.MULTI_LINE);
+        responseLabel.setReadOnly(true);
+
+        responseLabel.setLayoutData(BorderLayout.Location.CENTER);
 
 
         topPanel.addComponent(responseLabel);
