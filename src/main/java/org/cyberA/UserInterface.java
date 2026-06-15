@@ -29,6 +29,18 @@ public class UserInterface {
 
     private Runnable onSubmitFunc = null;
 
+    //https://patorjk.com/software/taag/
+    private final String DEFAULT_TEXT = """
+            
+                        ▄▄                         ▄▄                              \s
+                        ██                         ██                              \s
+            ▄████ ██ ██ ████▄ ▄█▀█▄ ████▄  ▀▀█▄ ▄████ ██ ██  ▀▀█▄ ████▄ ▄████ ▄█▀█▄\s
+            ██    ██▄██ ██ ██ ██▄█▀ ██ ▀▀ ▄█▀██ ██ ██ ██▄██ ▄█▀██ ██ ██ ██    ██▄█▀\s
+            ▀████  ▀██▀ ████▀ ▀█▄▄▄ ██    ▀█▄██ ▀████  ▀█▀  ▀█▄██ ██ ██ ▀████ ▀█▄▄▄\s
+                    ██                                                             \s
+                  ▀▀▀                                                              \s
+            """;
+
     public void onSubmit(Runnable listener) {
         onSubmitFunc = listener;
     }
@@ -130,7 +142,7 @@ public class UserInterface {
 
         bottomPanel.addComponent(userInputBorder);
 
-        responseLabel = new Label("model response");
+        responseLabel = new Label(DEFAULT_TEXT);
         responseLabel.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.FILL,
