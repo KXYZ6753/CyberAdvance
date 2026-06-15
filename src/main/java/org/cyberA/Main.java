@@ -66,7 +66,7 @@ public class Main {
     private static UserInterface ui;
 
     private static void announceTool(String name, JSONObject args) {
-        String line = "\n[TOOL CALLED] " + name + " " + args.toString() + "\n";
+        String line = "\n\n[TOOL CALLED] " + name + " " + args.toString() + "\n";
         System.out.println(line);
         if (ui != null) {
             ui.concatModelText(line);
@@ -201,7 +201,7 @@ public class Main {
                         history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, userInput));
 
                         for (int step =0; step < maxSteps; step++) {
-                            ui.concatModelText("\nTHINKING PROCESS (Step "+(step+1)+"):\n->");
+                            ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n-> ");
 
                             OllamaChatRequest request = OllamaChatRequest.builder()
                                     .withModel(model)
@@ -217,7 +217,7 @@ public class Main {
                             List<OllamaChatToolCalls> toolCalls = message.getToolCalls();
 
                             if (toolCalls == null || toolCalls.isEmpty()) {
-                                ui.setChatText("\nRESPONSE:\n->");
+                                ui.setChatText("\nRESPONSE:\n-> ");
                                 ui.concatModelText(message.getResponse());
                                 break;
                             }
