@@ -63,6 +63,15 @@ public class Main {
     }
 
     private static Bridge bridge;
+    private static UserInterface ui;
+
+    private static void announceTool(String name, JSONObject args) {
+        String line = "\n\n[TOOL CALLED] " + name + " " + args.toString() + "\n";
+        System.out.println(line);
+        if (ui != null) {
+            ui.concatModelText(line);
+        }
+    }
 
     private static JSONObject envelope(JSONObject tool) {
         JSONArray tools = new JSONArray();
@@ -88,6 +97,7 @@ public class Main {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "read_file");
         tool.put("path", path);
+        announceTool("read_file", tool);
         return forward(tool);
     }
 
@@ -98,6 +108,7 @@ public class Main {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "list_folder");
         tool.put("path", path);
+        announceTool("list_folder", tool);
         return forward(tool);
     }
 
@@ -108,8 +119,24 @@ public class Main {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "structure_report");
         tool.put("path", path);
+        announceTool("structure_report", tool);
         return forward(tool);
     }
+
+    @ToolSpec(desc = "Find files within a directory on the VM that match given names or patterns.")
+    public String findFiles(
+            @ToolProperty(name = "path", desc = "Path of the base directory to search in")
+            String path,
+            @ToolProperty(name = "matches", desc = "List of substring matches to filter files by")
+            List<String> matches) {
+        JSONObject tool = new JSONObject();
+        tool.put("tool_name", "find_files");
+        tool.put("path", path);
+        tool.put("matches", new JSONArray(matches));
+        announceTool("find_files", tool);
+        return forward(tool);
+    }
+
 
     public static void main(String[] args) throws Exception {
 
@@ -138,7 +165,7 @@ public class Main {
         history.add(new OllamaChatMessage(
                 OllamaChatMessageRole.SYSTEM,
                 "You are CyberA, an autonomous code-analysis agent operating on a remote VM. " +
-                        "You have tools: readFile, listFolder, structureReport. " +
+                        "You have tools: readFile, listFolder, structureReport, findFiles. " +
                         "Work in a loop: think about what you still need to know, call ONE tool, " +
                         "examine its result, then decide the next tool call. " +
                         "Keep calling tools until you have enough information to fully answer the user. " +
@@ -151,8 +178,8 @@ public class Main {
 
 
 
-        Main agent = new Main();
-        UserInterface ui = new UserInterface();
+
+        ui = new UserInterface();
         ui.onSubmit(new Runnable() {
             @Override
             public void run() {
@@ -174,7 +201,7 @@ public class Main {
                         history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, userInput));
 
                         for (int step =0; step < maxSteps; step++) {
-                            ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n->");
+                            ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n-> ");
 
                             OllamaChatRequest request = OllamaChatRequest.builder()
                                     .withModel(model)
@@ -190,21 +217,9 @@ public class Main {
                             List<OllamaChatToolCalls> toolCalls = message.getToolCalls();
 
                             if (toolCalls == null || toolCalls.isEmpty()) {
-                                history.add(new OllamaChatMessage(
-                                   OllamaChatMessageRole.ASSISTANT, message.getResponse()
-                                ));
-                                ui.setChatText("\nRESPONSE:\n->");
+                                ui.setChatText("\nRESPONSE:\n-> ");
                                 ui.concatModelText(message.getResponse());
                                 break;
-                            }
-
-
-
-                            for (OllamaChatToolCalls toolCall : toolCalls) {
-                                String name = toolCall.getFunction().getName();
-                                Map<String, Object> a = toolCall.getFunction().getArguments();
-                                ui.setChatText("\n[TOOL] " + name + " " + a + "\n->");
-
                             }
                         }
 
