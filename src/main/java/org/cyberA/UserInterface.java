@@ -33,7 +33,7 @@ public class UserInterface {
         textGUI = new MultiWindowTextGUI(screen);
         mainWindow = new BasicWindow("CyberAdvance");
 
-        Window.Hint[] hints = new Window.Hint[]{Window.Hint.CENTERED, Window.Hint.EXPANDED, Window.Hint.FULL_SCREEN, Window.Hint.FIXED_SIZE, Window.Hint.FIT_TERMINAL_WINDOW, Window.Hint.NO_DECORATIONS};
+        Window.Hint[] hints = new Window.Hint[]{Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS};
 
         mainWindow.setHints(Arrays.asList(hints));
 
@@ -43,8 +43,8 @@ public class UserInterface {
         rootPanel.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.FILL,
-                false,
-                false,
+                true,
+                true,
                 1,
                 1
         ));
@@ -59,29 +59,33 @@ public class UserInterface {
         userInput.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.FILL,
-                false,
-                false,
+                true,
+                true,
                 1,
                 1
         ));
+
+        bottomPanel.addComponent(userInput);
 
         responseLabel = new Label("model response");
         responseLabel.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.FILL,
-                false,
-                false,
+                true,
+                true,
                 1,
                 1
         ));
+
+        topPanel.addComponent(responseLabel);
 
         topPanel.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.BEGINNING,
                 true,
-                false,
+                true,
                 1,
-                4
+                1
         ));
 
         bottomPanel.setLayoutData(GridLayout.createLayoutData(
@@ -96,8 +100,6 @@ public class UserInterface {
 
         rootPanel.addComponent(topPanel);
         rootPanel.addComponent(bottomPanel);
-        topPanel.addComponent(responseLabel);
-        bottomPanel.addComponent(userInput);
 
         mainWindow.setComponent(rootPanel);
         textGUI.addWindowAndWait(mainWindow);
