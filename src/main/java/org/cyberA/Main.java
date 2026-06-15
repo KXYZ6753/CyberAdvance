@@ -71,7 +71,7 @@ public class Main {
         if (ui != null) {
             ui.setChatText("");
             ui.concatModelText(line);
-            ui.setUserText("The Model Is currently Using a Tool...");
+            ui.setUserText("The Model is currently Using a Tool & Reasoning...");
         }
     }
 
