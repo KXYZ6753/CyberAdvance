@@ -1,11 +1,14 @@
 package org.cyberA;
 
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UserInterface {
     private Window mainWindow;
@@ -29,9 +32,22 @@ public class UserInterface {
         }
         textGUI = new MultiWindowTextGUI(screen);
         mainWindow = new BasicWindow("CyberAdvance");
+
+        Window.Hint[] hints = new Window.Hint[]{Window.Hint.CENTERED, Window.Hint.EXPANDED, Window.Hint.FULL_SCREEN, Window.Hint.FIXED_SIZE, Window.Hint.FIT_TERMINAL_WINDOW, Window.Hint.NO_DECORATIONS};
+
+        mainWindow.setHints(Arrays.asList(hints));
+
         layoutRoot = new GridLayout(1);
 
         Panel rootPanel = new Panel(layoutRoot);
+        rootPanel.setLayoutData(GridLayout.createLayoutData(
+                GridLayout.Alignment.FILL,
+                GridLayout.Alignment.FILL,
+                false,
+                false,
+                1,
+                1
+        ));
 
         topPanelLayout = new GridLayout(1);
         bottomPanelLayout = new GridLayout(1);
@@ -77,10 +93,14 @@ public class UserInterface {
                 1
         ));
 
+
         rootPanel.addComponent(topPanel);
         rootPanel.addComponent(bottomPanel);
         topPanel.addComponent(responseLabel);
         bottomPanel.addComponent(userInput);
+
+        mainWindow.setComponent(rootPanel);
+        textGUI.addWindowAndWait(mainWindow);
 
 
         return true;
