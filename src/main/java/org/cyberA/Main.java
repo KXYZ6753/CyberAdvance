@@ -198,21 +198,13 @@ public class Main {
                                 break;
                             }
 
-                            history.add(message);
+
 
                             for (OllamaChatToolCalls toolCall : toolCalls) {
                                 String name = toolCall.getFunction().getName();
                                 Map<String, Object> a = toolCall.getFunction().getArguments();
                                 ui.setChatText("\n[TOOL] " + name + " " + a + "\n->");
 
-                                String output;
-                                switch (name) {
-                                    case "readFile"-> output = agent.readFile((String)a.get("path"));
-                                    case "listFolder"-> output = agent.listFolder((String)a.get("path"));
-                                    case "structureReport"-> output = agent.structureReport((String)a.get("path"));
-                                    default-> output = "{\"ERR\":\"unknown tool " + name + "\"}";
-                                }
-                                history.add(new OllamaChatMessage(OllamaChatMessageRole.TOOL, output));
                             }
                         }
 
