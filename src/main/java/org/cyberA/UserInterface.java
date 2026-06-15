@@ -6,6 +6,8 @@ import com.googlecode.lanterna.graphics.SimpleTheme;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
@@ -45,6 +47,12 @@ public class UserInterface {
 
     public void concatModelText(String txt) {
         responseLabel.setText(responseLabel.getText().concat(txt));
+    }
+
+    public void onSubmitCallback() {
+        if (onSubmitFunc != null) {
+            onSubmitFunc.run();
+        }
     }
 
     public boolean initalize() {
@@ -94,7 +102,19 @@ public class UserInterface {
         Panel topPanel = new Panel(topPanelLayout);
         Panel bottomPanel = new Panel(bottomPanelLayout);
 
-        userInput = new TextBox();
+        // lanterna docs
+        userInput = new TextBox() {
+            @Override
+            public synchronized Result handleKeyStroke(KeyStroke keyStroke) {
+                if (keyStroke.getKeyType() == KeyType.Enter) {
+                    String message = getText();
+                    onSubmitCallback();
+                    return Result.HANDLED;
+                }
+                return super.handleKeyStroke(keyStroke);
+            }
+        };
+
         userInput.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
                 GridLayout.Alignment.FILL,
@@ -119,6 +139,7 @@ public class UserInterface {
                 1,
                 1
         ));
+
 
         topPanel.addComponent(responseLabel);
 
