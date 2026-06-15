@@ -166,16 +166,16 @@ public class Main {
                         };
                 OllamaGenerateTokenHandler responseStreamHandler = //doesnt work idk why
                         (s) -> {
-                            System.out.println("[RESPONSE] " + s);
                             ui.concatModelText(s);
                         };
 
                 new Thread(() -> {
                     try {
-
                         history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, userInput));
+
                         for (int step =0; step < maxSteps; step++) {
                             ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n->");
+
                             OllamaChatRequest request = OllamaChatRequest.builder()
                                     .withModel(model)
                                     .withMessages(history)
@@ -189,13 +189,16 @@ public class Main {
                             var message = result.getResponseModel().getMessage();
                             List<OllamaChatToolCalls> toolCalls = message.getToolCalls();
 
-                            history.clear();
-                            history.addAll(result.getChatHistory());
-
                             if (toolCalls == null || toolCalls.isEmpty()) {
+                                history.add(new OllamaChatMessage(
+                                   OllamaChatMessageRole.ASSISTANT, message.getResponse()
+                                ));
                                 ui.setChatText("\nRESPONSE:\n->");
                                 ui.concatModelText(message.getResponse());
+                                break;
                             }
+
+                            history.add(message);
 
                             for (OllamaChatToolCalls toolCall : toolCalls) {
                                 String name = toolCall.getFunction().getName();
