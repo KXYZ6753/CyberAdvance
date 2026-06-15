@@ -20,7 +20,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-
+@OllamaToolService(providers = { Main.class })
 public class Main {
     static class Bridge extends WebSocketClient {
 
@@ -127,6 +127,11 @@ public class Main {
 
         String model = "gemma4:e2b";
 
+        ollama.pullModel(model);
+
+        ollama.registerAnnotatedTools();
+
+
 
         OllamaGenerateTokenHandler thinkingStreamHandler =
                 (s) -> {
@@ -142,7 +147,7 @@ public class Main {
                         .withModel(model)
                         .withMessage(
                                 OllamaChatMessageRole.USER,
-                                "What is the capital of France?"
+                                "make a tool call"
                         )
                         .build();
 
