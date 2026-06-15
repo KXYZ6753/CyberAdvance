@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -150,7 +151,7 @@ public class Main {
 
 
 
-
+        Main agent = new Main();
         UserInterface ui = new UserInterface();
         ui.onSubmit(new Runnable() {
             @Override
@@ -186,13 +187,32 @@ public class Main {
                             );
 
                             var message = result.getResponseModel().getMessage();
-                            List<OllamaChatToolCalls> toolCalls = msg.getToolCalls();
+                            List<OllamaChatToolCalls> toolCalls = message.getToolCalls();
 
+                            history.clear();
+                            history.addAll(result.getChatHistory());
+
+                            if (toolCalls == null || toolCalls.isEmpty()) {
+                                ui.setChatText("\nRESPONSE:\n->");
+                                ui.concatModelText(message.getResponse());
+                            }
+
+                            for (OllamaChatToolCalls toolCall : toolCalls) {
+                                String name = toolCall.getFunction().getName();
+                                Map<String, Object> a = toolCall.getFunction().getArguments();
+                                ui.setChatText("\n[TOOL] " + name + " " + a + "\n->");
+
+                                String output;
+                                switch (name) {
+                                    case "readFile"-> output = agent.readFile((String)a.get("path"));
+                                    case "listFolder"-> output = agent.listFolder((String)a.get("path"));
+                                    case "structureReport"-> output = agent.structureReport((String)a.get("path"));
+                                    default-> output = "{\"ERR\":\"unknown tool " + name + "\"}";
+                                }
+                                history.add(new OllamaChatMessage(OllamaChatMessageRole.TOOL, output));
+                            }
                         }
-                        ui.setChatText("\nTHINKING PROCESS:\n->");
-                        OllamaChatResult result =
-                        ui.setChatText("\nRESPONSE:\n->");
-                        ui.concatModelText(result.getResponseModel().getMessage().getResponse());
+
                     } catch (io.github.ollama4j.exceptions.OllamaException e) {
                         System.err.println("Ollama error: " + e.getMessage());
                     }
