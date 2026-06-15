@@ -69,7 +69,9 @@ public class Main {
         String line = "\n\n[TOOL CALLED] " + name + " " + args.toString() + "\n";
         System.out.println(line);
         if (ui != null) {
+            ui.setChatText("");
             ui.concatModelText(line);
+            ui.setUserText("The Model Is currently Using a Tool...");
         }
     }
 
@@ -148,7 +150,7 @@ public class Main {
         Ollama ollama = new Ollama("http://localhost:11434");
         ollama.setRequestTimeoutSeconds(120);
 
-        String model = "gemma4:e2b";
+        String model = "gemma4:e4b";
 
         ollama.pullModel(model);
 
@@ -203,6 +205,7 @@ public class Main {
 
                         for (int step =0; step < maxSteps; step++) {
                             ui.setChatText("\n\nTHINKING PROCESS (Step "+(step+1)+"):\n-> ");
+                            ui.setUserText("The Model Is currently Thinking...");
 
                             OllamaChatRequest request = OllamaChatRequest.builder()
                                     .withModel(model)
@@ -220,6 +223,7 @@ public class Main {
                             if (toolCalls == null || toolCalls.isEmpty()) {
                                 ui.setChatText("\n\nRESPONSE:\n-> ");
                                 ui.concatModelText(message.getResponse());
+                                ui.setUserText("");
                                 break;
                             }
                         }
