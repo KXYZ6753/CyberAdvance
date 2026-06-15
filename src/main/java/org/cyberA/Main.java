@@ -41,14 +41,14 @@ public class Main {
         }
 
         void drain() {
-            indbox.clear();
+            inbox.clear();
         }
 
         String request(JSONObject payload) throws InterruptedException {
             drain();
             send(payload.toString());
             String response = inbox.poll(30, TimeUnit.SECONDS);
-            return respons == null ? "{\"ERR\":\"timeout waiting for VM\"}" : resp;
+            return response == null ? "{\"ERR\":\"timeout waiting for VM\"}" : response;
         }
     }
 }
