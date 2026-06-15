@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    application
 }
 
 group = "org.example"
@@ -17,8 +18,13 @@ dependencies {
     implementation("org.java-websocket:Java-WebSocket:1.5.7")
     implementation("org.json:json:20240303")
     implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("com.googlecode.lanterna:lanterna:3.1.5")
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = "org.cyberA.Main"
 }
