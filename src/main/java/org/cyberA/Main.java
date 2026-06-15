@@ -158,7 +158,7 @@ public class Main {
         Ollama ollama = new Ollama("http://localhost:11434");
         ollama.setRequestTimeoutSeconds(120);
 
-        String model = "gemma4:e4b";
+        String model = "gemma4:12b";
 
         ollama.pullModel(model);
 
@@ -180,7 +180,7 @@ public class Main {
                         "examine its result, then decide the next tool call. " +
                         "Keep calling tools until you have enough information to fully answer the user. " +
                         "Always think deeply, reason deeply, and look into every possibility without giving up. " +
-                        "When you are completely done and need no more tool calls, respond to user"
+                        "When you are completely done and need no more tool calls, respond to user by making a good summary and a detailed complete response."
         ));
 
 
