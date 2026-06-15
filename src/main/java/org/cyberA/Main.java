@@ -1,8 +1,16 @@
 package org.cyberA;
 
+import io.github.ollama4j.Ollama;
+import io.github.ollama4j.models.chat.OllamaChatMessageRole;
+import io.github.ollama4j.models.chat.OllamaChatRequest;
+import io.github.ollama4j.models.chat.OllamaChatResult;
+import io.github.ollama4j.tools.annotations.OllamaToolService;
+import io.github.ollama4j.tools.annotations.ToolProperty;
+import io.github.ollama4j.tools.annotations.ToolSpec;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URI;
@@ -50,5 +58,31 @@ public class Main {
             String response = inbox.poll(30, TimeUnit.SECONDS);
             return response == null ? "{\"ERR\":\"timeout waiting for VM\"}" : response;
         }
+    }
+
+    private static Bridge bridge;
+
+    public static void main(String[] args) throws Exception {
+
+        URI ServerUri = new URI("ws://localhost:8080");
+        bridge = new Bridge(ServerUri);
+        bridge.connectBlocking();
+
+        Ollama ollama = new Ollama("http://localhost:11434");
+        ollama.setRequestTimeoutSeconds(120);
+
+        String model = "gemma4:e2b";
+
+        OllamaChatRequest request =
+                OllamaChatRequest.builder()
+                        .withModel(model)
+                        .withMessage(
+                                OllamaChatMessageRole.USER,
+                                "What is the capital of France?"
+                        )
+                        .build();
+
+        OllamaChatResult result = ollama.chat(request, token -> System.out.print(token));
+        System.out.println("\n"+result.getResponseModel().getMessage().getResponse());
     }
 }
