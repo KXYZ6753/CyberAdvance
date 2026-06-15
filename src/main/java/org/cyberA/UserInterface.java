@@ -15,6 +15,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class UserInterface {
     private Window mainWindow;
@@ -57,8 +58,20 @@ public class UserInterface {
         responseLabel.setText(txt);
     }
 
+    public void setFocus() {
+        mainWindow.setFocusedInteractable(userInput);
+    }
+
     public void concatModelText(String txt) {
+        String oldText = responseLabel.getText();
         responseLabel.setText(responseLabel.getText().concat(txt));
+        String[] lines = responseLabel.getText().split("\n");
+
+        int maxWidth = lines[lines.length - 1].length() + 10;
+
+        if (maxWidth > mainWindow.getSize().getColumns()) {
+            responseLabel.setText(oldText + "\n" + txt);
+        }
     }
 
     public void onSubmitCallback() {
@@ -148,7 +161,6 @@ public class UserInterface {
 
         responseLabel.setLayoutData(BorderLayout.Location.CENTER);
 
-
         topPanel.addComponent(responseLabel);
 
         topPanel.setLayoutData(GridLayout.createLayoutData(
@@ -175,7 +187,6 @@ public class UserInterface {
 
         mainWindow.setComponent(rootPanel);
         textGUI.addWindowAndWait(mainWindow);
-
 
         return true;
     }
