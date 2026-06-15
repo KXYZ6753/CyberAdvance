@@ -111,6 +111,10 @@ public class Main {
         return forward(tool);
     }
 
+    public void onSubmit() {
+
+    }
+
     public static void main(String[] args) throws Exception {
         UserInterface ui = new UserInterface();
         ui.initalize();

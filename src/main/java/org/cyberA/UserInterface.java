@@ -25,6 +25,28 @@ public class UserInterface {
     private Label responseLabel;
     private TextBox userInput;
 
+    private Runnable onSubmitFunc = null;
+
+    public void onSubmit(Runnable listener) {
+        onSubmitFunc = listener;
+    }
+
+    public String getUserText() {
+        return userInput.getText();
+    }
+
+    public void setUserText(String txt) {
+        userInput.setText(txt);
+    }
+
+    public void setChatText(String txt) {
+        responseLabel.setText(txt);
+    }
+
+    public void concatModelText(String txt) {
+        responseLabel.setText(responseLabel.getText().concat(txt));
+    }
+
     public boolean initalize() {
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         Screen screen = null;
