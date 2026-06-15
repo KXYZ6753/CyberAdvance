@@ -112,6 +112,11 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        UserInterface ui = new UserInterface();
+        ui.initalize();
+
+        /*
+
 
         URI ServerUri = new URI("ws://localhost:8080");
         bridge = new Bridge(ServerUri);
@@ -143,6 +148,8 @@ public class Main {
 
         OllamaChatResult result = ollama.chat(request, new OllamaChatStreamObserver(thinkingStreamHandler, responseStreamHandler));
         System.out.println("\n LLM: \n"+result.getResponseModel().getMessage().getResponse());
+
+         */
 
     }
 }
