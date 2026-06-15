@@ -1,10 +1,7 @@
 package org.cyberA;
 
 import io.github.ollama4j.Ollama;
-import io.github.ollama4j.models.chat.OllamaChatMessageRole;
-import io.github.ollama4j.models.chat.OllamaChatRequest;
-import io.github.ollama4j.models.chat.OllamaChatResult;
-import io.github.ollama4j.models.chat.OllamaChatStreamObserver;
+import io.github.ollama4j.models.chat.*;
 import io.github.ollama4j.models.generate.OllamaGenerateTokenHandler;
 import io.github.ollama4j.tools.annotations.OllamaToolService;
 import io.github.ollama4j.tools.annotations.ToolProperty;
@@ -16,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -134,24 +133,17 @@ public class Main {
 
 
 
-        OllamaChatRequest request =
-                OllamaChatRequest.builder()
-                        .withModel(model)
-                        .withMessage(
-                                OllamaChatMessageRole.SYSTEM,
-                                "You are CyberA, an autonomous code-analysis agent operating on a remote VM. " +
-                                        "You have tools: readFile, listFolder, structureReport. " +
-                                        "Work in a loop: think about what you still need to know, call ONE tool, " +
-                                        "examine its result, then decide the next tool call. " +
-                                        "Keep calling tools until you have enough information to fully answer the user. " +
-                                        "When you are completely done and need no more tool calls, reply with a final " +
-                                        "answer that begins with the exact token 'FINAL:' followed by your summary."
-                        )
-                        .withMessage(
-                                OllamaChatMessageRole.USER,
-                                "get the file structure of '/Users/kerem/Downloads/untitled folder 2'"
-                        )
-                        .build();
+        List<OllamaChatMessage> history = new ArrayList<>();
+        history.add(new OllamaChatMessage(
+                OllamaChatMessageRole.SYSTEM,
+                "You are CyberA, an autonomous code-analysis agent operating on a remote VM. " +
+                        "You have tools: readFile, listFolder, structureReport. " +
+                        "Work in a loop: think about what you still need to know, call ONE tool, " +
+                        "examine its result, then decide the next tool call. " +
+                        "Keep calling tools until you have enough information to fully answer the user. " +
+                        "When you are completely done and need no more tool calls, respond to user"
+        ));
+
 
         int maxSteps = 15;
 
@@ -177,15 +169,28 @@ public class Main {
                             ui.concatModelText(s);
                         };
 
-                OllamaChatRequest userRequest = OllamaChatRequest.builder()
-                        .withModel(model)
-                        .withMessage(OllamaChatMessageRole.USER, userInput)
-                        .build();
-
                 new Thread(() -> {
                     try {
+
+                        history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, userInput));
+                        for (int step =0; step < maxSteps; step++) {
+                            ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n->");
+                            OllamaChatRequest request = OllamaChatRequest.builder()
+                                    .withModel(model)
+                                    .withMessages(history)
+                                    .build();
+
+                            OllamaChatResult result = ollama.chat(
+                                    request,
+                                    new OllamaChatStreamObserver(thinkingStreamHandler,responseStreamHandler)
+                            );
+
+                            var message = result.getResponseModel().getMessage();
+                            List<OllamaChatToolCalls> toolCalls = msg.getToolCalls();
+
+                        }
                         ui.setChatText("\nTHINKING PROCESS:\n->");
-                        OllamaChatResult result = ollama.chat(userRequest, new OllamaChatStreamObserver(thinkingStreamHandler, responseStreamHandler));
+                        OllamaChatResult result =
                         ui.setChatText("\nRESPONSE:\n->");
                         ui.concatModelText(result.getResponseModel().getMessage().getResponse());
                     } catch (io.github.ollama4j.exceptions.OllamaException e) {
