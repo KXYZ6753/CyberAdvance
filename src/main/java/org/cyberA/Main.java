@@ -4,6 +4,8 @@ import io.github.ollama4j.Ollama;
 import io.github.ollama4j.models.chat.OllamaChatMessageRole;
 import io.github.ollama4j.models.chat.OllamaChatRequest;
 import io.github.ollama4j.models.chat.OllamaChatResult;
+import io.github.ollama4j.models.chat.OllamaChatStreamObserver;
+import io.github.ollama4j.models.generate.OllamaGenerateTokenHandler;
 import io.github.ollama4j.tools.annotations.OllamaToolService;
 import io.github.ollama4j.tools.annotations.ToolProperty;
 import io.github.ollama4j.tools.annotations.ToolSpec;
@@ -62,6 +64,53 @@ public class Main {
 
     private static Bridge bridge;
 
+    private static JSONObject envelope(JSONObject tool) {
+        JSONArray tools = new JSONArray();
+        tools.put(tool);
+        JSONObject payload = new JSONObject();
+        payload.put("tools", tools);
+        return payload;
+    }
+
+    private static String forward(JSONObject tool) {
+        try {
+            return bridge.request(envelope(tool));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "{\"ERR\":\"interrupted while waiting for VM\"}";
+        }
+    }
+
+    @ToolSpec(desc = "Read the full contents of a single file on the VM by its path.")
+    public String readFile(
+            @ToolProperty(name = "path", desc = "Absolute or relative path of the file to read")
+            String path) {
+        JSONObject tool = new JSONObject();
+        tool.put("tool_name", "read_file");
+        tool.put("path", path);
+        return forward(tool);
+    }
+
+    @ToolSpec(desc = "List the entries (files and sub-folders) inside a directory on the VM.")
+    public String listFolder(
+            @ToolProperty(name = "path", desc = "Path of the directory to list")
+            String path) {
+        JSONObject tool = new JSONObject();
+        tool.put("tool_name", "list_folder");
+        tool.put("path", path);
+        return forward(tool);
+    }
+
+    @ToolSpec(desc = "Produce a structure report describing the layout of a project or directory on the VM.")
+    public String structureReport(
+            @ToolProperty(name = "path", desc = "Root path to generate the structure report for")
+            String path) {
+        JSONObject tool = new JSONObject();
+        tool.put("tool_name", "structure_report");
+        tool.put("path", path);
+        return forward(tool);
+    }
+
     public static void main(String[] args) throws Exception {
 
         URI ServerUri = new URI("ws://localhost:8080");
@@ -73,6 +122,16 @@ public class Main {
 
         String model = "gemma4:e2b";
 
+
+        OllamaGenerateTokenHandler thinkingStreamHandler =
+                (s) -> {
+                    System.out.print(s.toUpperCase());
+                };
+        OllamaGenerateTokenHandler responseStreamHandler =
+                (s) -> {
+                    System.out.print(s.toUpperCase());
+                };
+
         OllamaChatRequest request =
                 OllamaChatRequest.builder()
                         .withModel(model)
@@ -82,7 +141,8 @@ public class Main {
                         )
                         .build();
 
-        OllamaChatResult result = ollama.chat(request, token -> System.out.print(token));
-        System.out.println("\n"+result.getResponseModel().getMessage().getResponse());
+        OllamaChatResult result = ollama.chat(request, new OllamaChatStreamObserver(thinkingStreamHandler, responseStreamHandler));
+        System.out.println("\n LLM: \n"+result.getResponseModel().getMessage().getResponse());
+
     }
 }
