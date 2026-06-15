@@ -112,17 +112,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        UserInterface ui = new UserInterface();
-        ui.onSubmit(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("user pressed enter");
-            }
-        });
 
-        ui.initalize();
 
-        URI ServerUri = new URI("ws://localhost:8080");
+        URI ServerUri = new URI("ws://localhost:6767");
         bridge = new Bridge(ServerUri);
         bridge.connectBlocking();
 
@@ -137,26 +129,73 @@ public class Main {
 
 
 
-        OllamaGenerateTokenHandler thinkingStreamHandler =
-                (s) -> {
-                    System.out.print(s.toUpperCase());
-                };
-        OllamaGenerateTokenHandler responseStreamHandler =
-                (s) -> {
-                    System.out.print(s.toUpperCase());
-                };
+
+
+
+
 
         OllamaChatRequest request =
                 OllamaChatRequest.builder()
                         .withModel(model)
                         .withMessage(
+                                OllamaChatMessageRole.SYSTEM,
+                                "You are CyberA, an autonomous code-analysis agent operating on a remote VM. " +
+                                        "You have tools: readFile, listFolder, structureReport. " +
+                                        "Work in a loop: think about what you still need to know, call ONE tool, " +
+                                        "examine its result, then decide the next tool call. " +
+                                        "Keep calling tools until you have enough information to fully answer the user. " +
+                                        "When you are completely done and need no more tool calls, reply with a final " +
+                                        "answer that begins with the exact token 'FINAL:' followed by your summary."
+                        )
+                        .withMessage(
                                 OllamaChatMessageRole.USER,
-                                "make a tool call"
+                                "get the file structure of '/Users/kerem/Downloads/untitled folder 2'"
                         )
                         .build();
 
-        OllamaChatResult result = ollama.chat(request, new OllamaChatStreamObserver(thinkingStreamHandler, responseStreamHandler));
-        System.out.println("\n LLM: \n"+result.getResponseModel().getMessage().getResponse());
+        int maxSteps = 15;
+
+
+
+
+
+        UserInterface ui = new UserInterface();
+        ui.onSubmit(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("user pressed enter");
+                String userInput = ui.getUserText();
+                ui.setUserText("");
+
+                OllamaGenerateTokenHandler thinkingStreamHandler =
+                        (s) -> {
+                            ui.concatModelText(s);
+                        };
+                OllamaGenerateTokenHandler responseStreamHandler = //doesnt work idk why
+                        (s) -> {
+                            System.out.println("[RESPONSE] " + s);
+                            ui.concatModelText(s);
+                        };
+
+                OllamaChatRequest userRequest = OllamaChatRequest.builder()
+                        .withModel(model)
+                        .withMessage(OllamaChatMessageRole.USER, userInput)
+                        .build();
+
+                new Thread(() -> {
+                    try {
+                        ui.setChatText("\nTHINKING PROCESS:\n->");
+                        OllamaChatResult result = ollama.chat(userRequest, new OllamaChatStreamObserver(thinkingStreamHandler, responseStreamHandler));
+                        ui.setChatText("\nRESPONSE:\n->");
+                        ui.concatModelText(result.getResponseModel().getMessage().getResponse());
+                    } catch (io.github.ollama4j.exceptions.OllamaException e) {
+                        System.err.println("Ollama error: " + e.getMessage());
+                    }
+                }).start();
+            }
+        });
+
+        ui.initalize();
 
     }
 }
