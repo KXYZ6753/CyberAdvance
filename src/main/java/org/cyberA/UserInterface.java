@@ -1,5 +1,9 @@
 package org.cyberA;
 
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.gui2.Borders;
+import com.googlecode.lanterna.graphics.SimpleTheme;
+
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.screen.Screen;
@@ -30,7 +34,20 @@ public class UserInterface {
         } catch (IOException e) {
             return false;
         }
+
+        SimpleTheme cyberAdvanceTheme = SimpleTheme.makeTheme(
+                false,
+                TextColor.ANSI.RED,
+                TextColor.ANSI.BLACK,
+                TextColor.ANSI.RED,
+                TextColor.ANSI.BLACK,
+                TextColor.ANSI.BLACK,
+                TextColor.ANSI.RED,
+                TextColor.ANSI.BLACK
+        );
+
         textGUI = new MultiWindowTextGUI(screen);
+        textGUI.setTheme(cyberAdvanceTheme);
         mainWindow = new BasicWindow("CyberAdvance");
 
         Window.Hint[] hints = new Window.Hint[]{Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS};
@@ -65,7 +82,11 @@ public class UserInterface {
                 1
         ));
 
-        bottomPanel.addComponent(userInput);
+        Component userInputBorder = userInput.withBorder(Borders.singleLine());
+        userInputBorder.setTheme(cyberAdvanceTheme);
+        userInput.setTheme(cyberAdvanceTheme);
+
+        bottomPanel.addComponent(userInputBorder);
 
         responseLabel = new Label("model response");
         responseLabel.setLayoutData(GridLayout.createLayoutData(
