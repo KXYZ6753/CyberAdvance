@@ -169,6 +169,7 @@ public class Main {
                         "Work in a loop: think about what you still need to know, call ONE tool, " +
                         "examine its result, then decide the next tool call. " +
                         "Keep calling tools until you have enough information to fully answer the user. " +
+                        "Always think deeply, reason deeply, and look into every possibility without giving up. " +
                         "When you are completely done and need no more tool calls, respond to user"
         ));
 
@@ -201,7 +202,7 @@ public class Main {
                         history.add(new OllamaChatMessage(OllamaChatMessageRole.USER, userInput));
 
                         for (int step =0; step < maxSteps; step++) {
-                            ui.setChatText("\nTHINKING PROCESS (Step "+(step+1)+"):\n-> ");
+                            ui.setChatText("\n\nTHINKING PROCESS (Step "+(step+1)+"):\n-> ");
 
                             OllamaChatRequest request = OllamaChatRequest.builder()
                                     .withModel(model)
@@ -217,7 +218,7 @@ public class Main {
                             List<OllamaChatToolCalls> toolCalls = message.getToolCalls();
 
                             if (toolCalls == null || toolCalls.isEmpty()) {
-                                ui.setChatText("\nRESPONSE:\n-> ");
+                                ui.setChatText("\n\nRESPONSE:\n-> ");
                                 ui.concatModelText(message.getResponse());
                                 break;
                             }
