@@ -165,7 +165,7 @@ public class UserInterface {
 
         topPanel.setLayoutData(GridLayout.createLayoutData(
                 GridLayout.Alignment.FILL,
-                GridLayout.Alignment.BEGINNING,
+                GridLayout.Alignment.FILL,
                 true,
                 true,
                 1,
