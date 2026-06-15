@@ -65,8 +65,8 @@ public class Main {
     private static Bridge bridge;
     private static UserInterface ui;
 
-    private static void announceTool(String name, JSONObject args) {
-        String line = "\n\n[TOOL CALLED] " + name + " " + args.toString() + "\n";
+    private static void announceTool(String name, JSONObject args, String reason) {
+        String line = "\n\nUSING TOOL: " + name + " to "+ reason + "\n Parameter: "+ args.toString() + "\n\n\n";
         System.out.println(line);
         if (ui != null) {
             ui.setChatText("");
@@ -95,33 +95,39 @@ public class Main {
     @ToolSpec(desc = "Read the full contents of a single file on the VM by its path.")
     public String readFile(
             @ToolProperty(name = "path", desc = "Absolute or relative path of the file to read")
-            String path) {
+            String path,
+            @ToolProperty(name = "reason", desc = "Very short reason describing why you call this tool")
+            String reason) {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "read_file");
         tool.put("path", path);
-        announceTool("read_file", tool);
+        announceTool("READ FILE", tool, reason);
         return forward(tool);
     }
 
     @ToolSpec(desc = "List the entries (files and sub-folders) inside a directory on the VM.")
     public String listFolder(
             @ToolProperty(name = "path", desc = "Path of the directory to list")
-            String path) {
+            String path,
+            @ToolProperty(name = "reason", desc = "Very short reason describing why you call this tool")
+            String reason) {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "list_folder");
         tool.put("path", path);
-        announceTool("list_folder", tool);
+        announceTool("LIST FOLDER", tool, reason);
         return forward(tool);
     }
 
     @ToolSpec(desc = "Produce a structure report describing the layout of a project or directory on the VM.")
     public String structureReport(
             @ToolProperty(name = "path", desc = "Root path to generate the structure report for")
-            String path) {
+            String path,
+            @ToolProperty(name = "reason", desc = "Very short reason describing why you call this tool")
+            String reason) {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "structure_report");
         tool.put("path", path);
-        announceTool("structure_report", tool);
+        announceTool("STRUCTURE REPORT", tool, reason);
         return forward(tool);
     }
 
@@ -130,12 +136,14 @@ public class Main {
             @ToolProperty(name = "path", desc = "Path of the base directory to search in")
             String path,
             @ToolProperty(name = "matches", desc = "List of substring matches to filter files by")
-            List<String> matches) {
+            List<String> matches,
+            @ToolProperty(name = "reason", desc = "Very short reason describing why you call this tool")
+            String reason) {
         JSONObject tool = new JSONObject();
         tool.put("tool_name", "find_files");
         tool.put("path", path);
         tool.put("matches", new JSONArray(matches));
-        announceTool("find_files", tool);
+        announceTool("FIND FILES", tool, reason);
         return forward(tool);
     }
 
