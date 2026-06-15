@@ -121,6 +121,7 @@ public class Main {
         ollama.setRequestTimeoutSeconds(120);
 
         String model = "gemma4:e2b";
+        ollama.pullModel(model);
 
 
         OllamaGenerateTokenHandler thinkingStreamHandler =
