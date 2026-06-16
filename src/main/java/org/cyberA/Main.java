@@ -174,7 +174,7 @@ public class Main {
         List<OllamaChatMessage> history = new ArrayList<>();
         history.add(new OllamaChatMessage(
                 OllamaChatMessageRole.SYSTEM,
-                "You are CyberA, an autonomous code-analysis agent operating on a remote VM. " +
+                "You are Cyber Advance, an autonomous code-analysis agent operating on a remote VM. " +
                         "You have tools: readFile, listFolder, structureReport, findFiles. " +
                         "Work in a loop: think about what you still need to know, call ONE tool, " +
                         "examine its result, then decide the next tool call. " +
